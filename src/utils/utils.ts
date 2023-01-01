@@ -1,4 +1,6 @@
 import axios from "axios"
+import { TickerReturn } from "../types"
+import { OrderSideType, OrderType } from "./types"
 const baseUrl = "https://api.binance.com"
 
 const getAllPrices = async () => {
@@ -12,25 +14,17 @@ const getBTCTicker = async () => {
 const getETHTicker = async () => {
   return await axios.get(`${baseUrl}/api/v3/ticker/price?symbol="ETHUSDT`)
 }
-export type TickerReturn = {
-  symbol: string
-  price: string
-}
+
 const getBothMainTickers = async () => {
   const res = await axios.get<TickerReturn[]>(
     `${baseUrl}/api/v3/ticker/price?symbols=["ETHUSDT","BTCUSDT"]`
   )
   return res
 }
-type OrderSideType = "SELL" | "BUY"
-type OrderType =
-  | "LIMIT"
-  | "MARKET"
-  | "STOP_LOSS"
-  | "STOP_LOSS_LIMIT"
-  | "TAKE_PROFIT"
-  | "TAKE_PROFIT_LIMIT"
-  | "LIMIT_MAKER"
+
+const formatAmountNumber = (amount: string) =>
+  parseFloat(parseFloat(amount).toFixed(3))
+const formatAmountString = (amount: string) => parseFloat(amount).toFixed(3)
 
 const placeNewOrder = async (
   symbol: string,
@@ -52,5 +46,7 @@ export {
   getBTCTicker,
   getETHTicker,
   getBothMainTickers,
-  placeNewOrder
+  placeNewOrder,
+  formatAmountNumber,
+  formatAmountString
 }

@@ -1,0 +1,14 @@
+.most-used-inputs {
+  display: flex;
+  position: relative;
+  width: 100%;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.most-used-inputs-fiat {
+  display: flex;
+  position: relative;
+  width: 100%;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}

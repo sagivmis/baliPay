@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Dispatch, SetStateAction } from "react"
-import { EditMode, PaymentMethod, TickerChoice } from "../types"
+import { EditMode, PaymentMethod, AvailableTickers } from "../types"
 import { formatAmountNumber } from "../utils"
 import { ITickerContext, TickerContext } from "./tickersContext"
 
@@ -13,13 +13,13 @@ export interface IUserContext {
   amount: number
   fiatAmount: number
   editMode: EditMode
-  choice: TickerChoice
+  choice: AvailableTickers
   selectedPaymentMethod: PaymentMethod
   set: {
     amount: Dispatch<SetStateAction<number>>
     fiat: Dispatch<SetStateAction<number>>
     editMode: Dispatch<SetStateAction<EditMode>>
-    choice: Dispatch<SetStateAction<TickerChoice>>
+    choice: Dispatch<SetStateAction<AvailableTickers>>
     paymentMethod: Dispatch<SetStateAction<PaymentMethod>>
   }
   handlePaymentMethodChange: (method: PaymentMethod) => void
@@ -61,9 +61,12 @@ const UserProvider: React.FC<{
   children: React.ReactNode
 }> = ({ children }) => {
   const [amount, setAmount] = useState(0)
+  const [prevAmount, setPrevAmount] = useState(0)
   const [fiatAmount, setFiatAmount] = useState(0)
+  const [prevFiatAmount, setPrevFiatAmount] = useState(0)
   const [editMode, setEditMode] = useState<EditMode>("currency")
-  const [choice, setChoice] = useState<TickerChoice>("ETH")
+  const [choice, setChoice] = useState<AvailableTickers>("ETH")
+  const [prevChoice, setPrevChoice] = useState<AvailableTickers>("ETH")
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>("VISA")
   const { current, set, btcPrice, ethPrice } = React.useContext(
@@ -93,14 +96,20 @@ const UserProvider: React.FC<{
 
   const handleAmountChange = useCallback(
     ({ amountInDollars, currencyAmount }: OptionalAmount) => {
-      if (amountInDollars) {
+      if (amountInDollars || amountInDollars === 0) {
         setAmount(
           formatAmountNumber(calculateCurrency(amountInDollars).toString())
         )
         return
       }
-      if (currencyAmount) {
-        setFiatAmount(Math.floor(formatAmountNumber(current) * currencyAmount))
+      if (currencyAmount || currencyAmount === 0) {
+        setFiatAmount(
+          formatAmountNumber(
+            (parseFloat(current) * currencyAmount).toString(),
+            false,
+            true
+          )
+        )
         return
       }
       console.log("No input {handleAmountChange function}")
@@ -109,7 +118,7 @@ const UserProvider: React.FC<{
   )
 
   const handleChoiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChoice(e.target.value as TickerChoice)
+    setChoice(e.target.value as AvailableTickers)
   }
 
   const handlePaymentMethodChange = (method: PaymentMethod) => {
@@ -122,15 +131,34 @@ const UserProvider: React.FC<{
   }, [btcPrice, choice, ethPrice, set])
 
   useEffect(() => {
-    if (editMode === "currency") {
-      handleAmountChange({
-        currencyAmount: formatAmountNumber(current) * amount
-      })
+    if (
+      choice !== prevChoice ||
+      prevAmount !== amount ||
+      prevFiatAmount !== fiatAmount
+    ) {
+      if (editMode === "currency") {
+        handleAmountChange({
+          currencyAmount: amount
+        })
+      }
+      if (editMode === "fiat") {
+        handleAmountChange({ amountInDollars: fiatAmount })
+      }
+      setPrevChoice(choice)
+      setPrevAmount(amount)
+      setPrevFiatAmount(fiatAmount)
     }
-    if (editMode === "fiat") {
-      handleAmountChange({ amountInDollars: fiatAmount })
-    }
-  }, [amount, current, editMode, fiatAmount, handleAmountChange])
+  }, [
+    amount,
+    choice,
+    current,
+    editMode,
+    fiatAmount,
+    handleAmountChange,
+    prevAmount,
+    prevChoice,
+    prevFiatAmount
+  ])
 
   return (
     <UserContext.Provider

@@ -9,6 +9,7 @@ import RemoveIcon from "@mui/icons-material/Remove"
 import EditIcon from "@mui/icons-material/Edit"
 import "./user-input.css"
 import MostUsedInputs from "../MostUsedInputs"
+import { formatAmountNumber } from "../../utils"
 const UserInput = () => {
   const [errorMessage, setErrorMessage] = useState("")
   const [showEdit, setShowEdit] = useState(false)
@@ -17,7 +18,7 @@ const UserInput = () => {
     amount,
     fiatAmount,
     editMode,
-    set: setUser,
+    set,
     decrementAmount,
     decrementFiatAmount,
     incrementAmount,
@@ -29,7 +30,7 @@ const UserInput = () => {
       parseInt(e.target.value) === 0 ||
       e.target.value === ""
     ) {
-      setUser.amount(parseFloat(e.target.value))
+      set.amount(parseFloat(e.target.value))
       setErrorMessage("")
     } else setErrorMessage("Please enter numbers only")
   }
@@ -41,7 +42,7 @@ const UserInput = () => {
       parseInt(e.target.value) === 0 ||
       e.target.value === ""
     ) {
-      setUser.fiat(parseFloat(e.target.value))
+      set.fiat(parseFloat(e.target.value))
       setErrorMessage("")
     } else setErrorMessage("Please enter numbers only")
   }
@@ -68,11 +69,11 @@ const UserInput = () => {
               <EditIcon
                 className='edit-icon'
                 onClick={() => {
-                  setUser.editMode("fiat")
+                  set.editMode("fiat")
                 }}
               />
             )}
-            {`${Math.ceil(amount * parseFloat(current))}$`}
+            {`${formatAmountNumber(fiatAmount.toString(), true)}$`}
           </p>
         )}
         {editMode === "fiat" && (
@@ -126,7 +127,7 @@ const UserInput = () => {
               <EditIcon
                 className='edit-icon'
                 onClick={() => {
-                  setUser.editMode("currency")
+                  set.editMode("currency")
                 }}
               />
             )}

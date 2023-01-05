@@ -5,4 +5,25 @@
   background-color: white;
   box-shadow: 0px 5px 3px rgba(0 0 0 / 20%), 3px 3px 7px rgba(0 0 0 / 15%),
     0px 0px 4px rgba(0 0 0 / 15%);
+  display: flex;
+  gap: 1em;
+}
+
+.neutral {
+  color: black;
+  display: flex;
+}
+
+.down {
+  color: red;
+  display: flex;
+}
+
+.up {
+  color: #28b062;
+  display: flex;
+}
+
+p {
+  margin: 0;
 }

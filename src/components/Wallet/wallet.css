@@ -1,0 +1,57 @@
+.wallet-container {
+  width: 90%;
+  height: 80%;
+  position: relative;
+  top: 2.5%;
+  background-color: white;
+
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.assets-container {
+  display: flex;
+  width: 90%;
+  height: 10%;
+  justify-content: flex-end;
+}
+
+.wallet-header {
+  display: flex;
+  position: relative;
+  width: 90%;
+  height: 10%;
+  left: 2%;
+  top: 2%;
+}
+
+.greeting-label {
+  margin: 0;
+}
+
+.estimated-label {
+  position: relative;
+  top: 30px;
+  right: 40px;
+}
+
+.assets-label {
+  margin: 0;
+}
+
+.history-container {
+  position: relative;
+  top: 30%;
+  height: 50%;
+  width: 100%;
+}
+
+.history-label {
+  margin: 0;
+  height: 10%;
+}
+
+div.wallet-history-grid {
+  height: 90%;
+}

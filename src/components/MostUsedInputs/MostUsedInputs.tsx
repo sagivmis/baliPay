@@ -13,7 +13,7 @@ const MostUsedInputs = () => {
   ) as IUserContext
   return (
     <div className='most-used-inputs'>
-      {editMode === "fiat"
+      {editMode === "currency"
         ? fiatAmounts.map((fiatAmount) => (
             <Button
               onClick={() => {

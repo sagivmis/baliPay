@@ -1,11 +1,11 @@
-import { OrderSideType } from "../../utils/types"
 import { GridColDef } from "@mui/x-data-grid"
+import { AvailableTickers } from "../../types"
 
-type WalletTransaction = {
+export type WalletTransaction = {
   id: number
   date?: Date
-  side: OrderSideType
-  currency: "FIAT" | "ETH" | "BTC"
+  side: WalletAction
+  currency: AvailableTickers
   amount: number
   price: number // price for token
   totalPrice: number
@@ -85,6 +85,30 @@ export const dummyHistory: WalletTransaction[] = [
     amount: 0.21,
     price: 1200,
     totalPrice: 240
+  },
+  {
+    id: 9,
+    side: "DEPOSIT",
+    currency: "USD",
+    amount: 2000,
+    price: 1,
+    totalPrice: 2000
+  },
+  {
+    id: 10,
+    side: "DEPOSIT",
+    currency: "ETH",
+    amount: 0.5,
+    price: 1200,
+    totalPrice: 600
+  },
+  {
+    id: 11,
+    side: "BUY",
+    currency: "BTC",
+    amount: 0.1,
+    price: 15000,
+    totalPrice: 1500
   }
 ]
 

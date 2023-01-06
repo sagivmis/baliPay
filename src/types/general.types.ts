@@ -2,7 +2,7 @@ export type TickerReturn = {
   symbol: string
   price: string
 }
-export type AvailableTickers = "ETH" | "BTC" | "SOL"
+export type AvailableTickers = "USD" | "ETH" | "BTC" | "SOL"
 export type PaymentMethod = "PAYPAL" | "MASTERCARD" | "VISA" | "BIT"
 export type EditMode = "currency" | "fiat"
 export type PaymentOptionType = {

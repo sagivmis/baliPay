@@ -112,11 +112,17 @@ export const dummyHistory: WalletTransaction[] = [
   }
 ]
 
-export const gridColumns: GridColDef[] = [
+export const transactionsGridColumns: GridColDef[] = [
   { field: "date", headerName: "Time", flex: 3 },
   { field: "side", headerName: "Action", flex: 1 },
   { field: "currency", headerName: "Asset", flex: 1 },
   { field: "amount", headerName: "Amount", flex: 4 },
   { field: "price", headerName: "$/Token", flex: 4 },
   { field: "totalPrice", headerName: "Total $", flex: 4 }
+]
+
+export const walletGridColumns: GridColDef[] = [
+  { field: "asset", headerName: "Asset", flex: 1 },
+  { field: "amount", headerName: "Amount", flex: 1 },
+  { field: "fiat", headerName: "~$", flex: 1 }
 ]

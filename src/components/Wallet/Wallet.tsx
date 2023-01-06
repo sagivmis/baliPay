@@ -1,16 +1,32 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { AvailableTickers, WalletType } from "../../types"
-import { dummyHistory, gridColumns, WalletTransaction } from "./cfg"
+import {
+  dummyHistory,
+  transactionsGridColumns,
+  walletGridColumns,
+  WalletTransaction
+} from "./cfg"
 import { DataGrid, GridValueGetterParams } from "@mui/x-data-grid"
 import "./wallet.css"
 import { ITickerContext, TickerContext } from "../../context/tickersContext"
-import { PieChart, Pie, ResponsiveContainer, Tooltip } from "recharts"
+import {
+  PieChart,
+  Pie,
+  ResponsiveContainer,
+  Tooltip,
+  Label,
+  LabelList
+} from "recharts"
 import { formatAmountNumber } from "../../utils"
-import { availableTickers } from "../../utils/cfg"
+import { availableBalances } from "../../utils/cfg"
+import { useLocation, useNavigate } from "react-router-dom"
+import clsx from "clsx"
 
 const Wallet = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [wallet, setWallet] = useState<WalletType>({
-    balance: { btc: 0.1, eth: 0.88, sol: 113.3, usd: 1000 }
+    balance: { btc: 0.1, eth: 3.88, sol: 113.3, usd: 1000 }
   })
   const [history, setHistory] = useState(dummyHistory)
   const [fiatBalances, setFiatBalances] = useState<WalletType>({
@@ -21,6 +37,32 @@ const Wallet = () => {
   const { btcPrice, ethPrice, solPrice } = useContext(
     TickerContext
   ) as ITickerContext
+
+  const [miniWalletData, setMiniWalletData] = useState<
+    {
+      id: number
+      amount: number
+      asset: string
+      fiat: number
+    }[]
+  >([])
+
+  const generateMiniWalletData = useCallback(() => {
+    setMiniWalletData(
+      Object.values(wallet.balance).map((amount, index) => {
+        return {
+          id: index,
+          amount,
+          asset: Object.keys(wallet.balance)[index].toUpperCase(),
+          fiat: Object.values(fiatBalances.balance)[index]
+        }
+      })
+    )
+  }, [fiatBalances.balance, wallet.balance])
+
+  useEffect(() => {
+    generateMiniWalletData()
+  }, [generateMiniWalletData])
 
   const calculateCurrencyAmountFromHistory = useCallback(
     (ticker: AvailableTickers) => {
@@ -43,18 +85,31 @@ const Wallet = () => {
   )
 
   const renderCustomTooltip = useCallback(
-    (props: any) => {
+    ({ payload, active, label, ...props }: any) => {
       const bal = Object.values(fiatBalances.balance).map((balance, index) => {
         return { balance, index }
       })
       let key = 0
       bal.forEach((balance) => {
-        if (balance.balance === parseFloat(props.payload[0]?.value))
+        // ! TO FIX
+        // ! will be a problem when balances are the same with floor func
+        // ! i.e btc fiat value: 2222.33$ and eth fiat value: 2222.71$
+        // ! might cause wrong string to be written to screen
+        if (
+          Math.floor(balance.balance) ===
+          Math.floor(parseFloat(payload[0]?.value))
+        )
           key = balance.index
       })
       const keys = Object.keys(fiatBalances.balance)
 
-      return <div className='tooltip'>{keys[key].toUpperCase()}</div>
+      return (
+        <div className='tooltip'>
+          <p className='label'>
+            {`~${payload[0]?.value}$  (${keys[key].toUpperCase()})`}
+          </p>
+        </div>
+      )
     },
     [fiatBalances.balance]
   )
@@ -64,105 +119,210 @@ const Wallet = () => {
       const fiatWallet: WalletType = {
         balance: { btc: 0, eth: 0, sol: 0, usd: 0 }
       }
-      setTotalWalletBalance(
-        Object.keys(wallet.balance)
-          .map((key) => {
-            if (key === "btc") {
-              fiatWallet.balance.btc = formatAmountNumber(
-                (parseFloat(btcPrice) * wallet.balance[key]).toString()
-              )
-              return fiatWallet.balance.btc
-            }
-            if (key === "eth") {
-              fiatWallet.balance.eth = formatAmountNumber(
-                (parseFloat(ethPrice) * wallet.balance[key]).toString()
-              )
-              return fiatWallet.balance.eth
-            }
-            if (key === "sol") {
-              fiatWallet.balance.sol = formatAmountNumber(
-                (parseFloat(solPrice) * wallet.balance[key]).toString()
-              )
-              return fiatWallet.balance.sol
-            }
-            if (key === "usd") {
-              fiatWallet.balance.usd = formatAmountNumber(
-                wallet.balance[key].toString()
-              )
-              return fiatWallet.balance.usd
-            }
-          })
-          .reduce((accumulator: number, currentValue?: number) => {
-            if (currentValue) return accumulator + currentValue
-            return 0
-          }, 0)
-      )
+      let totalValue = 0
+      setTotalWalletBalance(() => {
+        Object.keys(wallet.balance).map((key) => {
+          if (key === "btc") {
+            const newVal = formatAmountNumber(
+              (parseFloat(btcPrice) * wallet.balance[key]).toString()
+            )
+            fiatWallet.balance.btc = newVal
+            totalValue += newVal
+            return fiatWallet.balance.btc
+          }
+          if (key === "eth") {
+            fiatWallet.balance.eth = formatAmountNumber(
+              (parseFloat(ethPrice) * wallet.balance[key]).toString()
+            )
+            totalValue += fiatWallet.balance.eth
+            return fiatWallet.balance.eth
+          }
+          if (key === "sol") {
+            fiatWallet.balance.sol = formatAmountNumber(
+              (parseFloat(solPrice) * wallet.balance[key]).toString()
+            )
+            totalValue += fiatWallet.balance.sol
+            return fiatWallet.balance.sol
+          }
+          if (key === "usd") {
+            fiatWallet.balance.usd = formatAmountNumber(
+              wallet.balance[key].toString()
+            )
+            totalValue += fiatWallet.balance.usd
+            return fiatWallet.balance.usd
+          }
+        })
+        return totalValue
+      })
 
       return fiatWallet
     })
-  }, [btcPrice, ethPrice, solPrice, wallet.balance])
+  }, [btcPrice, ethPrice, solPrice, wallet])
 
   useEffect(() => {
-    const newWallet = availableTickers.map((ticker) => {
+    availableBalances.forEach((ticker) => {
       if (ticker === "BTC") {
-        return { btc: calculateCurrencyAmountFromHistory(ticker) }
+        setWallet((prevWallet) => {
+          return {
+            balance: {
+              ...prevWallet.balance,
+              btc: calculateCurrencyAmountFromHistory(ticker)
+            }
+          }
+        })
+        return {
+          btc: calculateCurrencyAmountFromHistory(ticker)
+        }
       }
       if (ticker === "ETH") {
-        return { eth: calculateCurrencyAmountFromHistory(ticker) }
+        setWallet((prevWallet) => {
+          return {
+            balance: {
+              ...prevWallet.balance,
+              eth: calculateCurrencyAmountFromHistory(ticker)
+            }
+          }
+        })
+        return {
+          eth: calculateCurrencyAmountFromHistory(ticker)
+        }
       }
       if (ticker === "SOL") {
-        return { sol: calculateCurrencyAmountFromHistory(ticker) }
+        setWallet((prevWallet) => {
+          return {
+            balance: {
+              ...prevWallet.balance,
+              sol: calculateCurrencyAmountFromHistory(ticker)
+            }
+          }
+        })
+        return {
+          sol: calculateCurrencyAmountFromHistory(ticker)
+        }
       }
       if (ticker === "USD") {
-        return { usd: calculateCurrencyAmountFromHistory(ticker) }
+        setWallet((prevWallet) => {
+          return {
+            balance: {
+              ...prevWallet.balance,
+              usd: calculateCurrencyAmountFromHistory(ticker)
+            }
+          }
+        })
+        return {
+          usd: calculateCurrencyAmountFromHistory(ticker)
+        }
       }
+
       return null
     })
-    console.log(newWallet)
-    // setWallet({balance:{btc:newWallet})
   }, [calculateCurrencyAmountFromHistory])
 
   const [showPieLabel, setShowPieLabel] = useState(true)
+  const [pieData, setPieData] = useState(
+    Object.values(fiatBalances.balance).map((balance) => {
+      return { balance }
+    })
+  )
+  const [inWalletPage, setInWalletPage] = useState(false)
+
+  const [walletClass, setWalletClass] = useState("wallet-container")
+
+  useEffect(() => {
+    if (location.pathname === "/wallet") {
+      setInWalletPage(true)
+      setWalletClass("wallet-container")
+    } else {
+      setInWalletPage(false)
+      setWalletClass("wallet-container-mini")
+    }
+  }, [location.pathname])
+
+  useEffect(() => {
+    console.log(miniWalletData)
+  }, [miniWalletData])
+
+  useEffect(() => {
+    setPieData(
+      Object.values(fiatBalances.balance).map((balance, index) => {
+        return {
+          balance,
+          ticker: Object.keys(fiatBalances.balance)[index].toUpperCase()
+        }
+      })
+    )
+  }, [fiatBalances.balance])
+
   return (
-    <div className='wallet-container'>
+    <div className={walletClass}>
       <div className='wallet-header'>
-        <h2 className='greeting-label'>Welcome Sagiv Mishaan</h2>
-        <h4 className='greeting-label estimated-label'>
+        <h2
+          className={clsx(
+            "greeting-label",
+            inWalletPage ? "" : "mini-greeting-label"
+          )}
+        >
+          Welcome Sagiv Mishaan
+        </h2>
+        <h4
+          className={clsx(
+            "greeting-label",
+            inWalletPage ? "estimated-label" : "mini-estimated-label"
+          )}
+        >
           {`Estimated balance ~ ${totalWalletBalance.toFixed(2)}$`}
         </h4>
       </div>
-      <div className='assets-container'>
+      <div
+        className={clsx(
+          "assets-container",
+          !inWalletPage ? "assets-container-mini" : ""
+        )}
+      >
         <h3 className='assets-label'>Assets</h3>
-        <ResponsiveContainer width='30%' height={250}>
-          <PieChart>
-            <Pie
-              data={Object.values(fiatBalances.balance).map((balance) => {
-                return { balance }
-              })}
-              dataKey='balance'
-              cx='50%'
-              cy='50%'
-              paddingAngle={5}
-              innerRadius={60}
-              outerRadius={80}
-              isAnimationActive={false}
-              fill='#8884d8'
-              label={showPieLabel}
-            ></Pie>
-            <Tooltip content={renderCustomTooltip} />
-          </PieChart>
-        </ResponsiveContainer>
+        {inWalletPage && (
+          <ResponsiveContainer width='30%' height={250}>
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey='balance'
+                cx='50%'
+                cy='50%'
+                paddingAngle={5}
+                innerRadius={80}
+                outerRadius={100}
+                isAnimationActive={false}
+                fill='#8884d8'
+                label={showPieLabel}
+                // minAngle={1000}
+              >
+                <LabelList dataKey='ticker' position='insideStart' />
+              </Pie>
+              <Tooltip content={renderCustomTooltip} />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+        {!inWalletPage && (
+          <DataGrid
+            rows={miniWalletData}
+            columns={walletGridColumns}
+            className='mini-wallet-asset-grid'
+            pageSize={5}
+          />
+        )}
       </div>
-      <div className='history-container'>
-        <h3 className='history-label'>History</h3>
-        <DataGrid
-          rows={history}
-          columns={gridColumns}
-          className='wallet-history-grid'
-          pageSize={5}
-          checkboxSelection
-        />
-      </div>
+      {inWalletPage && (
+        <div className='history-container'>
+          <h3 className='history-label'>History</h3>
+          <DataGrid
+            rows={history}
+            columns={transactionsGridColumns}
+            className='wallet-history-grid'
+            pageSize={5}
+            checkboxSelection
+          />
+        </div>
+      )}
     </div>
   )
 }

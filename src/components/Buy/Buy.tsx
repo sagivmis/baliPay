@@ -12,6 +12,7 @@ const Buy = () => {
   const [platformRate, setPlatformRate] = useState(5)
   const [totalPrice, setTotalPrice] = useState(0)
   const { fiatAmount } = useContext(UserContext)
+
   useEffect(() => {
     setTotalPrice(fiatAmount + gasFee + (fiatAmount * platformRate) / 100)
   }, [fiatAmount, gasFee, platformRate])

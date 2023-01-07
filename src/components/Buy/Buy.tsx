@@ -9,7 +9,7 @@ import "./buy.css"
 const Buy = () => {
   const [gasFee, setGasFee] = useState(10)
   const [platformFee, setPlatformFee] = useState(0)
-  const [platformRate, setPlatformRate] = useState(5)
+  const [platformRate, setPlatformRate] = useState(7)
   const [totalPrice, setTotalPrice] = useState(0)
   const { fiatAmount } = useContext(UserContext)
 

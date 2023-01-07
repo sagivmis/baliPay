@@ -106,7 +106,7 @@ const Wallet = () => {
       return (
         <div className='tooltip'>
           <p className='label'>
-            {`~${payload[0]?.value}$  (${keys[key].toUpperCase()})`}
+            {`~${Math.floor(payload[0]?.value)}$  (${keys[key].toUpperCase()})`}
           </p>
         </div>
       )

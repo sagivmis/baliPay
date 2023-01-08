@@ -1,5 +1,5 @@
 import { GridColDef } from "@mui/x-data-grid"
-import { AvailableTickers } from "../../types"
+import { AccountBalance, AvailableTickers } from "../../types"
 
 export type WalletTransaction = {
   id: number
@@ -105,10 +105,71 @@ export const dummyHistory: WalletTransaction[] = [
   {
     id: 11,
     side: "BUY",
+    currency: "SOL",
+    amount: 100,
+    price: 10,
+    totalPrice: 1000
+  },
+  {
+    id: 11,
+    side: "BUY",
     currency: "BTC",
     amount: 0.1,
     price: 15000,
     totalPrice: 1500
+  }
+]
+
+export const exampleBalanceHistory: AccountBalance[] = [
+  {
+    id: 0,
+    balance: 0,
+    assets: { btc: 0, eth: 0, sol: 0, usd: 0 }
+  },
+  {
+    id: 1,
+    balance: 0,
+    assets: { btc: 0, eth: 0, sol: 0, usd: 0 }
+  },
+  {
+    id: 2,
+    balance: 0,
+    assets: { btc: 0, eth: 0, sol: 0, usd: 0 }
+  },
+  {
+    id: 3,
+    balance: 0,
+    assets: { btc: 0, eth: 0, sol: 0, usd: 0 }
+  },
+  {
+    id: 4,
+    balance: 3000,
+    assets: { btc: 0, eth: 0, sol: 0, usd: 3000 }
+  },
+  {
+    id: 5,
+    balance: 3600,
+    assets: { btc: 0, eth: 3, sol: 0, usd: 0 }
+  },
+  {
+    id: 6,
+    balance: 4500,
+    assets: { btc: 0, eth: 3, sol: 0, usd: 0 }
+  },
+  {
+    id: 7,
+    balance: 3900,
+    assets: { btc: 0, eth: 3, sol: 0, usd: 0 }
+  },
+  {
+    id: 8,
+    balance: 3900,
+    assets: { btc: 0, eth: 0, sol: 0, usd: 3900 }
+  },
+  {
+    id: 9,
+    balance: 4800,
+    assets: { btc: 0.4, eth: 0, sol: 0, usd: 0 }
   }
 ]
 

@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from "react"
-import { AvailableTickers, WalletType } from "../../types"
+import { AssetsAmounts, AvailableTickers, WalletType } from "../../types"
 import {
   dummyHistory,
+  exampleBalanceHistory,
   transactionsGridColumns,
   walletGridColumns,
   WalletTransaction
@@ -15,7 +16,10 @@ import {
   ResponsiveContainer,
   Tooltip,
   Label,
-  LabelList
+  LabelList,
+  LineChart,
+  Line,
+  XAxis
 } from "recharts"
 import { formatAmountNumber } from "../../utils"
 import { availableBalances } from "../../utils/cfg"
@@ -114,6 +118,24 @@ const Wallet = () => {
     [fiatBalances.balance]
   )
 
+  const renderCustomBalanceHistoryTooltip = useCallback(
+    ({ payload, active, ...props }: any) => {
+      if (active) {
+        const amounts = payload[0].payload.assets as AssetsAmounts
+
+        return (
+          <div className='tooltip'>
+            <p className='label'>{`~${Math.floor(payload[0]?.value)}$`}</p>
+            <p className='label amounts-tooltip-label'>{`(${amounts.btc} BTC, ${amounts.eth} ETH, ${amounts.sol} SOL`}</p>
+            <p className='label amounts-tooltip-label'>{`${amounts.usd}US$)`}</p>
+          </div>
+        )
+      }
+    },
+    []
+  )
+
+  //move into hook
   useEffect(() => {
     setFiatBalances(() => {
       const fiatWallet: WalletType = {
@@ -224,6 +246,8 @@ const Wallet = () => {
       return { balance }
     })
   )
+  const [lineChartData, setLineChartData] = useState(exampleBalanceHistory)
+
   const [inWalletPage, setInWalletPage] = useState(false)
 
   const [walletClass, setWalletClass] = useState("wallet-container")
@@ -239,10 +263,6 @@ const Wallet = () => {
   }, [location.pathname])
 
   useEffect(() => {
-    console.log(miniWalletData)
-  }, [miniWalletData])
-
-  useEffect(() => {
     setPieData(
       Object.values(fiatBalances.balance).map((balance, index) => {
         return {
@@ -253,6 +273,18 @@ const Wallet = () => {
     )
   }, [fiatBalances.balance])
 
+  useEffect(() => {
+    setLineChartData((prevData) => {
+      return [
+        ...exampleBalanceHistory,
+        {
+          id: prevData.length,
+          balance: totalWalletBalance,
+          assets: { ...wallet.balance }
+        }
+      ]
+    })
+  }, [totalWalletBalance, wallet.balance])
   return (
     <div className={walletClass}>
       <div className='wallet-header'>
@@ -279,28 +311,49 @@ const Wallet = () => {
           !inWalletPage ? "assets-container-mini" : ""
         )}
       >
-        <h3 className='assets-label'>Assets</h3>
+        <h3
+          className={clsx(
+            "assets-label",
+            !inWalletPage ? "assets-label-mini" : ""
+          )}
+        >
+          Assets
+        </h3>
         {inWalletPage && (
-          <ResponsiveContainer width='30%' height={250}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey='balance'
-                cx='50%'
-                cy='50%'
-                paddingAngle={5}
-                innerRadius={80}
-                outerRadius={100}
-                isAnimationActive={false}
-                fill='#8884d8'
-                label={showPieLabel}
-                // minAngle={1000}
-              >
-                <LabelList dataKey='ticker' position='insideStart' />
-              </Pie>
-              <Tooltip content={renderCustomTooltip} />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className='charts-container'>
+            <ResponsiveContainer width='30%' height={250}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey='balance'
+                  cx='50%'
+                  cy='50%'
+                  paddingAngle={5}
+                  innerRadius={80}
+                  outerRadius={100}
+                  isAnimationActive={false}
+                  fill='#8884d8'
+                  label={showPieLabel}
+                  // minAngle={1000}
+                >
+                  <LabelList dataKey='ticker' position='insideStart' />
+                </Pie>
+                <Tooltip content={renderCustomTooltip} />
+              </PieChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width='70%' height={250}>
+              <LineChart width={700} height={100} data={lineChartData}>
+                <XAxis dataKey='id' />
+                <Line
+                  type='monotone'
+                  dataKey='balance'
+                  stroke='#8884d8'
+                  strokeWidth={2}
+                />
+                <Tooltip content={renderCustomBalanceHistoryTooltip} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         )}
         {!inWalletPage && (
           <DataGrid

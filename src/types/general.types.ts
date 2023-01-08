@@ -17,3 +17,17 @@ export type WalletType = {
     usd: number
   }
 }
+
+export type AssetsAmounts = {
+  btc: number
+  eth: number
+  sol: number
+  usd: number
+}
+
+export type AccountBalance = {
+  id: number
+  balance: number
+  date?: Date
+  assets: AssetsAmounts
+}

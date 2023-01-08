@@ -13,6 +13,7 @@ function Bali() {
   const navigate = useNavigate()
   const [homeIconClass, setHomeIconClass] = useState("navigate-home-container")
   const [inWalletPage, setInWalletPage] = useState(false)
+  const [sideWalletClass, setSideWalletClass] = useState("side-wallet")
 
   function handleClickHome() {
     navigate("/")
@@ -26,8 +27,10 @@ function Bali() {
     }
     if (location.pathname === "/wallet") {
       setInWalletPage(true)
+      setSideWalletClass("side-wallet hidden-wallet")
     } else {
       setInWalletPage(false)
+      setSideWalletClass("side-wallet")
     }
   }, [location.pathname])
 
@@ -38,11 +41,9 @@ function Bali() {
         <div className={homeIconClass}>
           <HomeIcon className='home-icon' onClick={handleClickHome} />
         </div>
-        {!inWalletPage && (
-          <div className='side-wallet'>
-            <Wallet />
-          </div>
-        )}
+        <div className={sideWalletClass}>
+          <Wallet />
+        </div>
 
         <Routes>
           <Route path='/' element={<Home />}></Route>

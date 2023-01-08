@@ -64,7 +64,7 @@ const TickersProvider: React.FC<{
 
   useEffect(() => {
     handleFetchAndSetTickers()
-    const interval = setInterval(handleFetchAndSetTickers, 2000)
+    const interval = setInterval(handleFetchAndSetTickers, 500)
     return () => clearInterval(interval)
   }, [handleFetchAndSetTickers])
 

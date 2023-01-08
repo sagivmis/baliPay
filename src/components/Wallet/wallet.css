@@ -30,14 +30,18 @@
   height: 10%;
   position: relative;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .assets-container-mini {
-  /* width: unset; */
-  height: 70%;
+  height: 100%;
   align-items: center;
-  margin-top: 30%;
+  width: 100%;
+}
+
+.charts-container {
+  width: 100%;
+  display: flex;
 }
 
 .wallet-header {
@@ -55,6 +59,7 @@
 .mini-greeting-label {
   text-align: left;
   width: 100%;
+  font-size: 1em;
 }
 
 .mini-estimated-label {
@@ -69,9 +74,12 @@
 }
 
 .assets-label {
-  margin: 0;
-  position: relative;
-  right: 12.5%;
+  margin-bottom: 0;
+}
+
+.assets-label-mini {
+  /* margin: 0; */
+  font-size: 1em;
 }
 
 .history-container {

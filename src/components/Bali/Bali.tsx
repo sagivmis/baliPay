@@ -44,6 +44,9 @@ function Bali() {
         <div className={sideWalletClass}>
           <Wallet />
         </div>
+        <div className='open-positions-container'>
+          <div className='open-positions'></div>
+        </div>
 
         <Routes>
           <Route path='/' element={<Home />}></Route>

@@ -59,7 +59,8 @@ svg.home-icon:hover {
 
 .open-positions-container {
   position: absolute;
-  right: 4%;
+  /* offset-anchor: left; */
+  left: calc(23% + 1em);
   width: 72%;
   bottom: 5%;
   height: 32.5%;
